@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import PropTypes from 'prop-types';
 import { Keyboard, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -18,7 +19,7 @@ import {
 } from './styles';
 import api from '../../services/api';
 
-export default function Main() {
+const Main = props => {
   const [users, setUsers] = useState([]);
   const [newUser, setNewUser] = useState('');
   const [loading, setLoading] = useState(false);
@@ -42,11 +43,13 @@ export default function Main() {
     return ref.current;
   }
 
+  // didmount
   useEffect(() => {
     retrieveData();
   }, [setUsers]);
 
   const previous = usePrevious({ users });
+  // didupdate
   useEffect(() => {
     if (previous !== users) {
       save();
@@ -68,6 +71,10 @@ export default function Main() {
 
     Keyboard.dismiss();
     setLoading(false);
+  };
+
+  const handleNavigate = user => {
+    props.navigation.navigate('User', { user });
   };
 
   return (
@@ -98,7 +105,7 @@ export default function Main() {
             <Avatar source={{ uri: item.avatar }} />
             <Name>{item.name}</Name>
             <Bio>{item.bio}</Bio>
-            <ProfileButton onPress={() => {}}>
+            <ProfileButton onPress={() => handleNavigate(item)}>
               <ProfileButtonText>See Profile</ProfileButtonText>
             </ProfileButton>
           </User>
@@ -106,8 +113,16 @@ export default function Main() {
       />
     </Container>
   );
-}
+};
 
 Main.navigationOptions = {
   title: 'Users',
 };
+
+Main.propTypes = {
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func,
+  }).isRequired,
+};
+
+export default Main;
