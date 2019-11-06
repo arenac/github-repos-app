@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { Keyboard, ActivityIndicator } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import {
@@ -21,6 +22,36 @@ export default function Main() {
   const [users, setUsers] = useState([]);
   const [newUser, setNewUser] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const retrieveData = async () => {
+    const localUsers = await AsyncStorage.getItem('users');
+    if (localUsers) {
+      setUsers(JSON.parse(localUsers));
+    }
+  };
+
+  const save = async () => {
+    await AsyncStorage.setItem('users', JSON.stringify(users));
+  };
+
+  function usePrevious(value) {
+    const ref = useRef();
+    useEffect(() => {
+      ref.current = value;
+    });
+    return ref.current;
+  }
+
+  useEffect(() => {
+    retrieveData();
+  }, [setUsers]);
+
+  const previous = usePrevious({ users });
+  useEffect(() => {
+    if (previous !== users) {
+      save();
+    }
+  });
 
   const handleSubmit = async () => {
     setLoading(true);
