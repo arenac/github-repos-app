@@ -21,39 +21,27 @@ import {
 
 const User = ({ navigation }) => {
   const [stars, setStars] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [nextPage, setNextPage] = useState(2);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(2);
 
   const user = navigation.getParam('user');
 
+  const fetchStarred = async (page = 1) => {
+    const response = await api.get(`/users/${user.login}/starred`, {
+      params: { page },
+    });
+    setStars(page >= 2 ? [...stars, ...response.data] : response.data);
+    setPage(page);
+    setLoading(false);
+  };
+
   // didmount
   useEffect(() => {
-    async function fetchStarred() {
-      setLoading(true);
-      const response = await api.get(`/users/${user.login}/starred`);
-      setStars(response.data);
-      setLoading(false);
-    }
     fetchStarred();
   }, [setStars, setLoading]);
 
-  const fetchNextStarred = async () => {
-    const response = await api.get(
-      `/users/${user.login}/starred?page=${nextPage}&per_page=20`
-    );
-    return response.data;
-  };
-
-  const loadMore = () => {
-    setLoading(true);
-    const data = fetchNextStarred();
-    if (data.length > 0) {
-      console.tron.log('response', data);
-      setStars([...stars, data]);
-      console.tron.log('stars_', stars);
-      setNextPage(nextPage + 1);
-    }
-    setLoading(false);
+  const loadMore = async () => {
+    fetchStarred(page + 1);
   };
 
   return (
@@ -76,7 +64,6 @@ const User = ({ navigation }) => {
         <Stars
           data={stars}
           keyExtractor={star => String(star.id)}
-          onStarteReached
           onEndReachedThreshold={0.2}
           onEndReached={loadMore}
           renderItem={({ item }) => (
