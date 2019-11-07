@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ActivityIndicator } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 import PropTypes from 'prop-types';
 
 import api from '../../services/api';
@@ -30,9 +30,9 @@ const User = ({ navigation }) => {
       setLoading(true);
       const response = await api.get(`/users/${user.login}/starred`);
       setStars(response.data);
+      setLoading(false);
     }
     fetchStarred();
-    setLoading(false);
   }, [setStars, setLoading]);
 
   return (
@@ -42,8 +42,16 @@ const User = ({ navigation }) => {
         <Name>{user.name}</Name>
         <Bio>{user.bio}</Bio>
       </Header>
+      {console.tron.log('loading', loading)}
       {loading ? (
-        <ActivityIndicator color="#000" />
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+          }}
+        >
+          <ActivityIndicator size="large" color="#333" />
+        </View>
       ) : (
         <Stars
           data={stars}
