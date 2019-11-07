@@ -18,19 +18,12 @@ import {
   ProfileButtonText,
 } from './styles';
 import api from '../../services/api';
+import { usePrevious } from '../../hooks';
 
 const Main = props => {
   const [users, setUsers] = useState([]);
   const [newUser, setNewUser] = useState('');
   const [loading, setLoading] = useState(false);
-
-  function usePrevious(value) {
-    const ref = useRef();
-    useEffect(() => {
-      ref.current = value;
-    });
-    return ref.current;
-  }
 
   // didmount
   useEffect(() => {
