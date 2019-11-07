@@ -24,17 +24,6 @@ const Main = props => {
   const [newUser, setNewUser] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const retrieveData = async () => {
-    const localUsers = await AsyncStorage.getItem('users');
-    if (localUsers) {
-      setUsers(JSON.parse(localUsers));
-    }
-  };
-
-  const save = async () => {
-    await AsyncStorage.setItem('users', JSON.stringify(users));
-  };
-
   function usePrevious(value) {
     const ref = useRef();
     useEffect(() => {
@@ -45,12 +34,21 @@ const Main = props => {
 
   // didmount
   useEffect(() => {
+    const retrieveData = async () => {
+      const localUsers = await AsyncStorage.getItem('users');
+      if (localUsers) {
+        setUsers(JSON.parse(localUsers));
+      }
+    };
     retrieveData();
   }, [setUsers]);
 
   const previous = usePrevious({ users });
   // didupdate
   useEffect(() => {
+    const save = async () => {
+      await AsyncStorage.setItem('users', JSON.stringify(users));
+    };
     if (previous !== users) {
       save();
     }
