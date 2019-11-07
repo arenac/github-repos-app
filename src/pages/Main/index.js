@@ -4,6 +4,9 @@ import { Keyboard, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
+import api from '../../services/api';
+import { usePrevious } from '../../hooks';
+
 import {
   Container,
   Form,
@@ -17,8 +20,6 @@ import {
   ProfileButton,
   ProfileButtonText,
 } from './styles';
-import api from '../../services/api';
-import { usePrevious } from '../../hooks';
 
 const Main = props => {
   const [users, setUsers] = useState([]);
