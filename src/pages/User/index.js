@@ -21,7 +21,8 @@ import {
 const User = ({ navigation }) => {
   const [stars, setStars] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(2);
+  const [page, setPage] = useState(1);
+  const [refresh, setRefresh] = useState(false);
 
   const user = navigation.getParam('user');
 
@@ -29,18 +30,25 @@ const User = ({ navigation }) => {
     const response = await api.get(`/users/${user.login}/starred`, {
       params: { page: _page },
     });
-    setStars(page >= 2 ? [...stars, ...response.data] : response.data);
-    setPage(page);
+    setStars(_page >= 2 ? [...stars, ...response.data] : response.data);
+    setPage(_page);
     setLoading(false);
+    setRefresh(false);
   };
 
   // didmount
   useEffect(() => {
     fetchStarred();
-  }, [setStars, setLoading]);
+  }, []);
 
-  const loadMore = async () => {
+  const loadMore = () => {
     fetchStarred(page + 1);
+  };
+
+  const refreshList = () => {
+    setRefresh(true);
+    setStars([]);
+    fetchStarred();
   };
 
   return (
@@ -58,6 +66,8 @@ const User = ({ navigation }) => {
           keyExtractor={star => String(star.id)}
           onEndReachedThreshold={0.2}
           onEndReached={loadMore}
+          onRefresh={refreshList}
+          refreshing={refresh}
           renderItem={({ item }) => (
             <Starred>
               <OwnerAvatar source={{ uri: item.owner.avatar_url }} />
