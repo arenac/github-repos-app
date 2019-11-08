@@ -69,7 +69,11 @@ const User = ({ navigation }) => {
           onRefresh={refreshList}
           refreshing={refresh}
           renderItem={({ item }) => (
-            <Starred>
+            <Starred
+              onPress={() =>
+                navigation.navigate('Repository', { repository: item })
+              }
+            >
               <OwnerAvatar source={{ uri: item.owner.avatar_url }} />
               <Info>
                 <Title>{item.name}</Title>
@@ -89,6 +93,7 @@ User.navigationOptions = ({ navigation }) => ({
 
 User.propTypes = {
   navigation: PropTypes.shape({
+    navigate: PropTypes.func,
     getParam: PropTypes.func,
   }).isRequired,
 };
