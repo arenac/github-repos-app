@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ActivityIndicator, View } from 'react-native';
 import PropTypes from 'prop-types';
 
 import api from '../../services/api';
-import { usePrevious } from '../../hooks';
 
 import {
   Container,
@@ -17,6 +15,7 @@ import {
   Info,
   Title,
   Author,
+  Loading,
 } from './styles';
 
 const User = ({ navigation }) => {
@@ -26,9 +25,9 @@ const User = ({ navigation }) => {
 
   const user = navigation.getParam('user');
 
-  const fetchStarred = async (page = 1) => {
+  const fetchStarred = async (_page = 1) => {
     const response = await api.get(`/users/${user.login}/starred`, {
-      params: { page },
+      params: { page: _page },
     });
     setStars(page >= 2 ? [...stars, ...response.data] : response.data);
     setPage(page);
@@ -52,14 +51,7 @@ const User = ({ navigation }) => {
         <Bio>{user.bio}</Bio>
       </Header>
       {loading ? (
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-          }}
-        >
-          <ActivityIndicator size="large" color="#333" />
-        </View>
+        <Loading />
       ) : (
         <Stars
           data={stars}
