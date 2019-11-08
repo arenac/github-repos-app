@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ActivityIndicator, View } from 'react-native';
 import PropTypes from 'prop-types';
 
 import api from '../../services/api';
-import { usePrevious } from '../../hooks';
 
 import {
   Container,
@@ -17,31 +15,40 @@ import {
   Info,
   Title,
   Author,
+  Loading,
 } from './styles';
 
 const User = ({ navigation }) => {
   const [stars, setStars] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(2);
+  const [page, setPage] = useState(1);
+  const [refresh, setRefresh] = useState(false);
 
   const user = navigation.getParam('user');
 
-  const fetchStarred = async (page = 1) => {
+  const fetchStarred = async (_page = 1) => {
     const response = await api.get(`/users/${user.login}/starred`, {
-      params: { page },
+      params: { page: _page },
     });
-    setStars(page >= 2 ? [...stars, ...response.data] : response.data);
-    setPage(page);
+    setStars(_page >= 2 ? [...stars, ...response.data] : response.data);
+    setPage(_page);
     setLoading(false);
+    setRefresh(false);
   };
 
   // didmount
   useEffect(() => {
     fetchStarred();
-  }, [setStars, setLoading]);
+  }, []);
 
-  const loadMore = async () => {
+  const loadMore = () => {
     fetchStarred(page + 1);
+  };
+
+  const refreshList = () => {
+    setRefresh(true);
+    setStars([]);
+    fetchStarred();
   };
 
   return (
@@ -52,20 +59,15 @@ const User = ({ navigation }) => {
         <Bio>{user.bio}</Bio>
       </Header>
       {loading ? (
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-          }}
-        >
-          <ActivityIndicator size="large" color="#333" />
-        </View>
+        <Loading />
       ) : (
         <Stars
           data={stars}
           keyExtractor={star => String(star.id)}
           onEndReachedThreshold={0.2}
           onEndReached={loadMore}
+          onRefresh={refreshList}
+          refreshing={refresh}
           renderItem={({ item }) => (
             <Starred>
               <OwnerAvatar source={{ uri: item.owner.avatar_url }} />
